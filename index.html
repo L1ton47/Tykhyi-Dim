@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тихий дім — речі для дому від українських майстрів</title>
+<meta name="description" content="Кераміка, льон і свічки малими серіями. Демо-магазин з фільтрами та кошиком.">
+<style>
+:root{--g:#1f3a2e;--g2:#2a4a3b;--t:#e9f1e4;--b:#f0d98a;--mut:#a9c0b0}
+*{box-sizing:border-box;margin:0}
+body{background:var(--g);color:var(--t);font:16px/1.55 Candara,"Gill Sans",Verdana,sans-serif}
+:focus-visible{outline:3px solid var(--b);outline-offset:2px}
+.shell{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
+aside{position:sticky;top:0;height:100vh;padding:28px 24px;display:flex;flex-direction:column;gap:18px;border-right:1px solid #35574a}
+.logo{font:italic 700 34px/1 Georgia,serif;color:var(--b)}
+aside p{color:var(--mut);font-size:15px}
+.cats{display:grid;gap:2px}
+.cats button{text-align:left;background:none;border:0;color:var(--t);font:inherit;padding:7px 0;cursor:pointer;border-bottom:1px solid #35574a}
+.cats button[aria-pressed=true]{color:var(--b);font-weight:700}
+.cats button[aria-pressed=true]::before{content:"— "}
+aside input,aside select{font:inherit;padding:10px 12px;border-radius:4px;border:1px solid #4b6c5d;background:var(--g2);color:var(--t);width:100%}
+.cartbtn{margin-top:auto;background:var(--b);color:#1f3a2e;border:0;padding:13px;font:700 16px inherit;border-radius:4px;cursor:pointer}
+main{padding:36px 4vw}
+h1{font:italic 400 clamp(34px,5.5vw,70px)/1.02 Georgia,serif;max-width:14ch;margin-bottom:12px}
+.lead{max-width:50ch;color:var(--mut);margin-bottom:34px}
+.cols{column-width:230px;column-gap:20px}
+.t{break-inside:avoid;margin-bottom:20px;background:var(--g2);border-radius:6px;overflow:hidden}
+.pic{display:grid;place-items:center;font-size:64px}
+.inf{padding:14px}
+.inf h3{font:700 18px Georgia,serif}
+.inf small{color:var(--mut)}
+.buy{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.add{background:none;border:1px solid var(--b);color:var(--b);padding:6px 14px;border-radius:20px;font:inherit;cursor:pointer}
+.add:hover{background:var(--b);color:#1f3a2e}
+.empty{padding:30px 0;color:var(--mut)}
+.note{margin-top:50px;padding-top:24px;border-top:1px solid #35574a;max-width:62ch;color:var(--mut)}
+.note b{color:var(--t)}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(370px,100%);background:#f3f6ef;color:#1f2b24;padding:22px;transform:translateX(105%);transition:transform .25s;z-index:10;display:flex;flex-direction:column}
+#drawer.open{transform:none}
+#drawer h2{font:italic 400 28px Georgia,serif}
+#items{flex:1;overflow:auto}
+.it{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid #cfd8c9}
+.it button{width:28px;height:28px;border-radius:50%;border:1px solid #1f3a2e;background:none;cursor:pointer}
+.tot{display:flex;justify-content:space-between;font:700 20px Georgia,serif;padding:14px 0}
+.ck{background:#1f3a2e;color:#f0d98a;border:0;padding:13px;border-radius:4px;font:inherit;cursor:pointer}
+.x{align-self:flex-end;background:none;border:0;font-size:28px;cursor:pointer;color:inherit}
+@media(max-width:800px){.shell{grid-template-columns:1fr}aside{position:static;height:auto;border:0}.cats{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){#drawer{transition:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside>
+<div class="logo">Тихий<br>дім</div>
+<p>Речі малими серіями від 14 українських майстерень.</p>
+<div class="cats" id="fl" role="group" aria-label="Категорії"></div>
+<input id="q" type="search" placeholder="Знайти річ" aria-label="Пошук">
+<select id="so" aria-label="Сортування"><option value="">Як у майстрів</option><option value="asc">Дешевші першими</option><option value="desc">Дорожчі першими</option></select>
+<button class="cartbtn" id="open">Кошик (<span id="cnt">0</span>)</button>
+</aside>
+<main>
+<h1>Менше речей, більше тиші.</h1>
+<p class="lead">Кожну річ тут зробили руками, у серії до двохсот штук. Тому колір кружки може трохи відрізнятися від фото, і ми цим пишаємося.</p>
+<div class="cols" id="grid"></div>
+<div class="note"><b>Доставка.</b> Нова пошта від 70 грн, безкоштовно від 1500 грн. По місту кур’єр наступного дня. Повернення протягом 14 днів. Це демо-магазин: товари й оплата не справжні.</div>
+</main>
+</div>
+<aside id="drawer" aria-label="Кошик" style="position:fixed;height:100%">
+<button class="x" id="close" aria-label="Закрити">×</button>
+<h2>Ваш кошик</h2><div id="items"></div>
+<div class="tot"><span>Разом</span><span id="sum">0 грн</span></div>
+<button class="ck" id="ck">Оформити замовлення</button>
+</aside>
+<script>
+const P=[
+{n:'Кружка «Ранок»',c:'Кераміка',p:350,e:'☕',bg:'#d9c9b6',h:190},{n:'Плед льняний',c:'Текстиль',p:1700,e:'🧶',bg:'#e0d6c4',h:250},
+{n:'Свічка «Ялівець»',c:'Свічки',p:400,e:'🕯️',bg:'#e5d4d4',h:160},{n:'Ваза «Тінь»',c:'Кераміка',p:900,e:'🏺',bg:'#c9bfd0',h:260},
+{n:'Дошка для сервірування',c:'Кухня',p:700,e:'🪵',bg:'#d8c9ae',h:170},{n:'Таріль ручної роботи',c:'Кераміка',p:550,e:'🍽️',bg:'#cfd8cc',h:200},
+{n:'Наволочки, 2 шт.',c:'Текстиль',p:650,e:'🛋️',bg:'#d3dcd6',h:150},{n:'Свічка «Тепле молоко»',c:'Свічки',p:400,e:'🕯️',bg:'#e6e0cf',h:230},
+{n:'Чайник керамічний',c:'Кухня',p:1100,e:'🫖',bg:'#d5cdd9',h:210},{n:'Глечик для води',c:'Кераміка',p:480,e:'🫗',bg:'#cbd9d6',h:170},
+{n:'Рушник лляний',c:'Текстиль',p:520,e:'🛁',bg:'#e1dccd',h:240},{n:'Підсвічник «Місяць»',c:'Кераміка',p:450,e:'🌙',bg:'#cfd1dc',h:180},
+{n:'Набір для аромату',c:'Свічки',p:800,e:'🌿',bg:'#cddccb',h:200}];
+const cats=['Усе',...new Set(P.map(x=>x.c))];let cur='Усе',cart={},q='',so='';
+const $=id=>document.getElementById(id);
+function grid(){const h=P.map((x,i)=>({x,i})).filter(o=>(cur==='Усе'||o.x.c===cur)&&o.x.n.toLowerCase().includes(q)).sort((a,b)=>so==='asc'?a.x.p-b.x.p:so==='desc'?b.x.p-a.x.p:0)
+.map(o=>`<article class="t"><div class="pic" style="background:${o.x.bg};height:${o.x.h}px">${o.x.e}</div><div class="inf"><h3>${o.x.n}</h3><small>${o.x.c}</small><div class="buy"><b>${o.x.p} грн</b><button class="add" data-i="${o.i}">У кошик</button></div></div></article>`).join('');
+$('grid').innerHTML=h||'<p class="empty">Нічого не знайшли. Спробуйте інше слово або категорію «Усе».</p>'}
+function fl(){$('fl').innerHTML=cats.map(c=>`<button aria-pressed="${c===cur}" data-c="${c}">${c}</button>`).join('')}
+function render(){const ids=Object.keys(cart);$('cnt').textContent=ids.reduce((s,i)=>s+cart[i],0);
+$('items').innerHTML=ids.length?ids.map(i=>`<div class="it"><div>${P[i].n}<br><small>${P[i].p*cart[i]} грн</small></div><div><button data-m="${i}" aria-label="Менше">−</button> ${cart[i]} <button data-p="${i}" aria-label="Більше">+</button></div></div>`).join(''):'<p style="margin-top:16px">Кошик порожній. Оберіть щось у каталозі.</p>';
+$('sum').textContent=ids.reduce((s,i)=>s+P[i].p*cart[i],0)+' грн'}
+document.addEventListener('click',e=>{const t=e.target;
+if(t.dataset.c){cur=t.dataset.c;fl();grid()}
+if(t.dataset.i){cart[t.dataset.i]=(cart[t.dataset.i]||0)+1;render();$('drawer').classList.add('open')}
+if(t.dataset.p){cart[t.dataset.p]++;render()}
+if(t.dataset.m){if(--cart[t.dataset.m]<=0)delete cart[t.dataset.m];render()}});
+$('q').oninput=e=>{q=e.target.value.toLowerCase().trim();grid()};$('so').onchange=e=>{so=e.target.value;grid()};
+$('open').onclick=()=>$('drawer').classList.add('open');$('close').onclick=()=>$('drawer').classList.remove('open');
+$('ck').onclick=()=>alert(Object.keys(cart).length?'Це демо: замовлення не оформлюється.':'Спочатку додайте річ у кошик.');
+fl();grid();render();
+</script>
+</body>
+</html>
